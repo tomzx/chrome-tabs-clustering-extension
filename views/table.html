@@ -1,0 +1,32 @@
+<% _.forEach(clusters, function(cluster, index) { %>
+
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<div class="panel-title">
+			Window <%- extractAttribute(_.first(cluster), currentAttribute) %>
+					<div class="pull-right">
+			<button class="btn btn-default btn-xs btn-cluster" data-id="<%- index %>"><span class="glyphicon glyphicon-magnet"></span> Cluster</button>
+		</div>
+		</div>
+	</div>
+
+	<div class="panel-body">
+		<table class="table table-responsive table-stripped table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>Title</th>
+				</tr>
+			</thead>
+			<tbody>
+			<% _.forEach(cluster, function(tab) { %>
+			<tr>
+				<td>
+					<%- tab.title %> (<%- tab.id %>)
+				</td>
+			</tr>
+			<% }); %>
+			</tbody>
+		</table>
+	</div>
+</div>
+<% }); %>
