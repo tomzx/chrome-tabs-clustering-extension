@@ -1,5 +1,8 @@
-// TODO: Check if main.html is already loaded
-
 chrome.browserAction.onClicked.addListener(function(tab) {
-	chrome.tabs.create({'url': chrome.extension.getURL('/views/main.html')});
+	var toCreate = { url: chrome.extension.getURL('/views/main.html') };
+	chrome.tabs.query(toCreate, function(tabs) {
+		if (tabs.length === 0) {
+			chrome.tabs.create(toCreate);
+		}
+	});
 });
