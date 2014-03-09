@@ -36,6 +36,9 @@ var currentKeyer = function() {
 // Display results
 var clusters = {};
 var updateClustering = function() {
+	console.trace();
+	console.log('Updating clustering...');
+	console.time('Clustering');
 	clusters = {};
 	var currentAttribute = $('#attribute').val();
 	var tabsAttribute = {};
@@ -70,6 +73,8 @@ var updateClustering = function() {
 			applyClustering($this.data('id'));
 		});
 	});
+	console.timeEnd('Clustering');
+	console.log('Clustering ready.');
 };
 
 // -----
@@ -87,9 +92,26 @@ var applyClustering = function(clusterId) {
 	});
 };
 
+var onUpdatedTabs = function(tabId, changeInfo, tab) {
+	if (changeInfo.status === 'complete') {
+		updateClustering();
+	}
+};
+
 var bootstrap = function() {
+	console.log('Bootstrapping...')
 	restoreLastOptions();
 	updateMenuVisibility();
+
+	setupTemplate();
+
+	chrome.tabs.onUpdated.addListener(onUpdatedTabs);
+	chrome.tabs.onRemoved.addListener(updateClustering);
+	console.log('Bootstrapping complete.');
+};
+
+var setupTemplate = function() {
+	console.log('Preparing templates...');
 	$.get('/views/table.html').done(function(data) {
 		tableTemplate = _.template(data);
 		updateClustering();
@@ -103,14 +125,12 @@ var bootstrap = function() {
 			updateMenuVisibility();
 			updateClustering();
 		});
+		console.log('Templates ready.');
 	});
-
-	chrome.tabs.onCreated.addListener(updateClustering);
-	chrome.tabs.onUpdated.addListener(updateClustering);
-	chrome.tabs.onRemoved.addListener(updateClustering);
 };
 
 var restoreLastOptions = function() {
+	console.log('Restoring last options...');
 	// Set last options
 	var options = ['method', 'keying_function', 'attribute', 'ngram_size'];
 	_.forEach(options, function(option) {
@@ -120,16 +140,17 @@ var restoreLastOptions = function() {
 			$('#'+option).val(value);
 		}
 	});
+	console.log('Restore complete.');
 };
 
 var updateMenuVisibility = function() {
 	var method = $('#method').val();
-	var keying_function = $('#keying_function').val();
+	var keyingFunction = $('#keying_function').val();
 	$('.key_collision').hide();
 	$('.nearest_neighbor').hide();
 	$('.ngram_fingerprint_params').hide();
 	$('.'+method).show();
-	if (keying_function === 'ngram-fingerprint') {
+	if (keyingFunction === 'ngram-fingerprint') {
 		$('.ngram_fingerprint_params').show();
 	}
 };
