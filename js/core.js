@@ -13,6 +13,20 @@ var extractAttribute = function(tab, attribute) {
 	}
 };
 
+// TODO: This is a terrible implementation
+var keyerParams = {};
+var currentKeyer = function() {
+	var keyer = $('#keying_function').val();
+	keyerParams = {};
+	switch (keyer) {
+		case 'fingerprint':
+			return new FingerprintKeyer();
+		case 'ngram-fingerprint':
+			keyerParams = { size: parseInt($('#ngram_size').val(), 10) };
+			return new NGramFingerprintKeyer();
+	}
+};
+
 // -----
 // On load + clustering method/keying function change
 // -----
@@ -29,23 +43,24 @@ var updateClustering = function() {
 		_.forEach(windows, function(window) {
 			_.forEach(window.tabs, function(tab) {
 				// Collect all tabs
-				// TODO: Somewhere else?
+				// TODO: Put this somewhere else?
 				tabs[tab.id] = tab;
 
-				// tabsTitle[tab.id] = tab.title;
 				tabsAttribute[tab.id] = extractAttribute(tab, currentAttribute);
 			});
 		});
 
-		keyer = new FingerprintKeyer();
+		var keyer = currentKeyer();
 		_.forEach(tabsAttribute, function(attribute, tabId) {
-			var cluster = keyer.key(attribute);
+			var cluster = keyer.key(attribute, keyerParams);
 			if (!clusters[cluster]) {
 				clusters[cluster] = [];
 			}
 			clusters[cluster].push(tabs[tabId]);
 		});
-		//console.log(clusters);
+
+		//console.dir(clusters);
+
 		$('#data').html(tableTemplate({currentAttribute: currentAttribute}));
 
 		$('.btn-cluster').click(function(e) {
@@ -74,16 +89,18 @@ var applyClustering = function(clusterId) {
 
 var bootstrap = function() {
 	restoreLastOptions();
+	updateMenuVisibility();
 	$.get('views/table.html').done(function(data) {
 		tableTemplate = _.template(data);
 		updateClustering();
-		$('select').change(function() {
+		$('#options select, #options input').change(function() {
 			// Save option
 			var $this = $(this);
 			var id = $this.attr('id');
 			localStorage[id] = $this.val();
 			console.log('Saved '+id+' = '+$this.val());
 
+			updateMenuVisibility();
 			updateClustering();
 		});
 	});
@@ -91,12 +108,26 @@ var bootstrap = function() {
 
 var restoreLastOptions = function() {
 	// Set last options
-	var options = ['method', 'keying_function', 'attribute'];
+	var options = ['method', 'keying_function', 'attribute', 'ngram_size'];
 	_.forEach(options, function(option) {
 		if (localStorage[option]) {
-			$('#'+option).val(localStorage[option]);
+			var value = localStorage[option];
+			console.log('Restoring '+option+' = '+value);
+			$('#'+option).val(value);
 		}
 	});
+};
+
+var updateMenuVisibility = function() {
+	var method = $('#method').val();
+	var keying_function = $('#keying_function').val();
+	$('.key_collision').hide();
+	$('.nearest_neighbor').hide();
+	$('.ngram_fingerprint_params').hide();
+	$('.'+method).show();
+	if (keying_function === 'ngram-fingerprint') {
+		$('.ngram_fingerprint_params').show();
+	}
 };
 
 document.addEventListener('DOMContentLoaded', function() {

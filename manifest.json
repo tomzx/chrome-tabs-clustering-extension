@@ -4,6 +4,10 @@
 	"name": "Tabs Clustering",
 	"description": "Use various data clustering methods to group your tabs together.",
 	"version": "0.0.1",
+	"author": "Tom Rochette <tom@tomrochette.com>",
+	"homepage_url": "http://www.tomrochette.com",
+
+	"default_locale": "en",
 
 	"icons": {
 		"16": "icon_16.png",

@@ -11,25 +11,25 @@
 	<script src="js/uri-1.12.1.js"></script>
 	<script src="js/bootstrap.js"></script>
 	<script src="js/clustering/binning/fingerprintkeyer.js"></script>
+	<script src="js/clustering/binning/ngramfingerprintkeyer.js"></script>
 	<script src="js/core.js"></script>
 </head>
 <body>
 	<nav class="navbar navbar-default navbar-static-top" role="navigation">
 		<div class="container-fluid">
 			<a href="#" class="navbar-brand">Tabs clustering</a>
-			<form action="" class="navbar-form navbar-left">
-				<div class="form-group">
-					<label for="method">Method</label>
-					<select name="method" id="method" class="form-control">
-						<option value="key_collision" selected>key collision</option>
-					</select>
-				</div>
-				<div class="form-group">
-					<label for="keying_function">Keying function</label>
-					<select name="keying_function" id="keying_function" class="form-control">
-						<option value="fingerprint">fingerprint</option>
-					</select>
-				</div>
+			<div class="pull-right">
+				<ul class="nav navbar-nav">
+					<li><a href="#"><span class="glyphicon glyphicon-heart" title="Donate!"></span></a></li>
+					<li><a href="#"><span class="glyphicon glyphicon-cog" title="Settings"></span></a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container-fluid">
+		<div id="options" class="col-sm-2" data-spy="affix">
+			<form action="" class="form-horizontal">
 				<div class="form-group">
 					<label for="attribute">Attribute</label>
 					<select name="attribute" id="attribute" class="form-control">
@@ -37,12 +37,66 @@
 						<option value="domain">domain</option>
 					</select>
 				</div>
+
+				<div class="form-group">
+					<label for="method">Method</label>
+					<select name="method" id="method" class="form-control">
+						<option value="key_collision" selected>key collision</option>
+						<option value="nearest_neighbor">nearest neighbor</option>
+					</select>
+				</div>
+
+				<div class="key_collision">
+					<div class="form-group">
+						<label for="keying_function">Keying Function</label>
+						<select name="keying_function" id="keying_function" class="form-control">
+							<option value="fingerprint">fingerprint</option>
+							<option value="ngram-fingerprint">ngram-fingerprint</option>
+							<option value="metaphone3" disabled>metaphone3</option>
+							<option value="cologne-phonetic" disabled>cologne-phonetic</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="ngram_fingerprint_params">
+					<div class="form-group">
+						<label for="ngram_size">Ngram Size</label>
+						<input type="text" name="ngram_size" id="ngram_size" class="form-control" value="2">
+					</div>
+				</div>
+
+				<div class="nearest_neighbor">
+					<div class="form-group">
+						<label for="distance_function">Distance Function</label>
+						<select name="distance_function" id="distance_function" class="form-control">
+							<option value="levenshtein">levenshtein</option>
+							<option value="PPM">PPM</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="radius">Radius</label>
+						<input type="text" name="radius" id="radius" class="form-control" value="1.0">
+					</div>
+					<div class="form-group">
+						<label for="block_chars">Block Chars</label>
+						<input type="text" name="block_chars" id="block_chars" class="form-control" value="6">
+					</div>
+				</div>
+
+				<div class="order_by">
+					<div class="form-group">
+						<label for="order_by">Order by</label>
+						<select name="order_by" id="order_by" class="form-control">
+							<option value="cluster_size">cluster size</option>
+							<option value="alphabetically">alphabetically</option>
+						</select>
+					</div>
+				</div>
 			</form>
 		</div>
-	</nav>
 
-	<div class="container">
-		<div id="data"></div>
+		<div id="data" class="col-sm-offset-2 col-sm-10"></div>
 	</div>
 </body>
 </html>
