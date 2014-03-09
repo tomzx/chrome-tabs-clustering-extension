@@ -1,3 +1,4 @@
+currentTabId = null;
 tabs = {};
 tabIds = [];
 
@@ -93,13 +94,14 @@ var applyClustering = function(clusterId) {
 };
 
 var onUpdatedTabs = function(tabId, changeInfo, tab) {
-	if (changeInfo.status === 'complete') {
+	if (changeInfo.status === 'complete' && tab.id !== currentTabId) {
 		updateClustering();
 	}
 };
 
 var bootstrap = function() {
-	console.log('Bootstrapping...')
+	console.log('Bootstrapping...');
+	getCurrentTab();
 	restoreLastOptions();
 	updateMenuVisibility();
 
@@ -109,6 +111,12 @@ var bootstrap = function() {
 	chrome.tabs.onRemoved.addListener(updateClustering);
 	console.log('Bootstrapping complete.');
 };
+
+var getCurrentTab = function() {
+	chrome.tabs.getCurrent(function(tab) {
+		currentTabId = tab.id;
+	});
+}
 
 var setupTemplate = function() {
 	console.log('Preparing templates...');
