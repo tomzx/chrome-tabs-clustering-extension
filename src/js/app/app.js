@@ -104,6 +104,10 @@ var bootstrap = function() {
 			updateClustering();
 		});
 	});
+
+	chrome.tabs.onCreated.addListener(updateClustering);
+	chrome.tabs.onUpdated.addListener(updateClustering);
+	chrome.tabs.onRemoved.addListener(updateClustering);
 };
 
 var restoreLastOptions = function() {
