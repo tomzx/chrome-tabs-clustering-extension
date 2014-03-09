@@ -6,7 +6,7 @@ NGramFingerprintKeyer.prototype.key = function(s, params) {
 	var ngram_size = 2;
 
 	if (typeof s !== 'string') {
-		throw new IllegalArgumentException('Fingerprint keyer accepts a single string parameter');
+		throw new IllegalArgumentException('NGramFingerprint keyer accepts a single string parameter');
 	}
 
 	if (typeof params === 'object' && typeof params.size === 'number') {

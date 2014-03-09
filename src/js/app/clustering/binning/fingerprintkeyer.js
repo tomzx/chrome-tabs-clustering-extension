@@ -26,7 +26,7 @@ FingerprintKeyer.prototype.asciify = function(s) {
 		b += this.translate(c[i]);
 	}
 	return b;
-}
+};
 
 /**
  * Translate the given unicode char in the closest ASCII representation

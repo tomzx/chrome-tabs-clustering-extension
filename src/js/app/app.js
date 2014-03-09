@@ -90,7 +90,7 @@ var applyClustering = function(clusterId) {
 var bootstrap = function() {
 	restoreLastOptions();
 	updateMenuVisibility();
-	$.get('views/table.html').done(function(data) {
+	$.get('/views/table.html').done(function(data) {
 		tableTemplate = _.template(data);
 		updateClustering();
 		$('#options select, #options input').change(function() {
