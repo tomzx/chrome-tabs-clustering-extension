@@ -1,11 +1,11 @@
-<% _.forEach(clusters, function(cluster, index) { %>
+<% _.forEach(clusters, function(cluster) { %>
 
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<div class="panel-title">
-			Window <%- extractAttribute(_.first(cluster), currentAttribute) %>
+			<%- extractAttribute(_.first(cluster[1]), currentAttribute) %>
 					<div class="pull-right">
-			<button class="btn btn-default btn-xs btn-cluster" data-id="<%- index %>"><span class="glyphicon glyphicon-magnet"></span> Cluster</button>
+			<button class="btn btn-default btn-xs btn-cluster" data-id="<%- cluster[0] %>"><span class="glyphicon glyphicon-magnet"></span> Cluster</button>
 		</div>
 		</div>
 	</div>
@@ -18,7 +18,7 @@
 				</tr>
 			</thead>
 			<tbody>
-			<% _.forEach(cluster, function(tab) { %>
+			<% _.forEach(cluster[1], function(tab) { %>
 			<tr>
 				<td>
 					<%- tab.title %> (<%- tab.id %>)

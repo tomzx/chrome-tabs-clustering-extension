@@ -1,4 +1,7 @@
-currentTabId = null;
+// TODO:
+// Use localStorage instead of DOM to read options
+
+appTabId = null;
 tabs = {};
 tabIds = [];
 
@@ -14,17 +17,44 @@ var extractAttribute = function(tab, attribute) {
 	}
 };
 
-// TODO: This is a terrible implementation
 var keyerParams = {};
-var currentKeyer = function() {
-	var keyer = $('#keying_function').val();
+var currentKeyer = function(keyer, options) {
 	keyerParams = {};
 	switch (keyer) {
 		case 'fingerprint':
 			return new FingerprintKeyer();
 		case 'ngram-fingerprint':
-			keyerParams = { size: parseInt($('#ngram_size').val(), 10) };
+			keyerParams = options;
 			return new NGramFingerprintKeyer();
+	}
+};
+
+var getKeyingFunction = function() {
+	return $('#keying_function').val();
+};
+
+var getKeyingOptions = function(keyingFunction) {
+	switch (keyingFunction) {
+		case 'ngram-fingerprint':
+			return { size: parseInt($('#ngram_size').val(), 10) };
+	}
+	return {};
+};
+
+var getSortMethod = function(orderBy, currentAttribute) {
+	switch (orderBy) {
+		case 'cluster_size':
+			return function(a, b) {
+				var sizeA = a[1].length;
+				var sizeB = b[1].length;
+				return sizeA === sizeB ? 0 : (sizeA < sizeB ? 1 : -1);
+			};
+		case 'alphabetically':
+			return function(a, b) {
+				a = extractAttribute(_.first(a[1]), currentAttribute);
+				b = extractAttribute(_.first(b[1]), currentAttribute);
+				return a.toLowerCase().localeCompare(b.toLowerCase());
+			};
 	}
 };
 
@@ -37,7 +67,6 @@ var currentKeyer = function() {
 // Display results
 var clusters = {};
 var updateClustering = function() {
-	console.trace();
 	console.log('Updating clustering...');
 	console.time('Clustering');
 	clusters = {};
@@ -54,7 +83,10 @@ var updateClustering = function() {
 			});
 		});
 
-		var keyer = currentKeyer();
+		var keyingFunction = getKeyingFunction();
+		var keyingOptions = getKeyingOptions(keyingFunction);
+		var keyer = currentKeyer(keyingFunction, keyingOptions);
+		// Perform clustering on all tabs
 		_.forEach(tabsAttribute, function(attribute, tabId) {
 			var cluster = keyer.key(attribute, keyerParams);
 			if (!clusters[cluster]) {
@@ -63,19 +95,24 @@ var updateClustering = function() {
 			clusters[cluster].push(tabs[tabId]);
 		});
 
-		//console.dir(clusters);
+		// Sort for display
+		var orderBy = $('#order_by').val();
+		clusters = _.pairs(clusters).sort(getSortMethod(orderBy, currentAttribute));
 
 		$('#data').html(tableTemplate({currentAttribute: currentAttribute}));
-
-		$('.btn-cluster').click(function(e) {
-			e.preventDefault();
-
-			var $this = $(this);
-			applyClustering($this.data('id'));
-		});
 	});
 	console.timeEnd('Clustering');
 	console.log('Clustering ready.');
+};
+
+
+var bindClusterButton = function() {
+	$(document).on('click', '.btn-cluster', function(e) {
+		e.preventDefault();
+
+		var $this = $(this);
+		applyClustering($this.data('id'));
+	});
 };
 
 // -----
@@ -93,15 +130,18 @@ var applyClustering = function(clusterId) {
 	});
 };
 
+
 var onUpdatedTabs = function(tabId, changeInfo, tab) {
-	if (changeInfo.status === 'complete' && tab.id !== currentTabId) {
+	var onlyOnComplete = changeInfo.status === 'complete';
+	var theAppTab = tab.id === appTabId;
+	if (onlyOnComplete && !theAppTab) {
 		updateClustering();
 	}
 };
 
 var bootstrap = function() {
 	console.log('Bootstrapping...');
-	getCurrentTab();
+	getAppTab();
 	restoreLastOptions();
 	updateMenuVisibility();
 
@@ -112,35 +152,42 @@ var bootstrap = function() {
 	console.log('Bootstrapping complete.');
 };
 
-var getCurrentTab = function() {
+var getAppTab = function() {
 	chrome.tabs.getCurrent(function(tab) {
-		currentTabId = tab.id;
+		appTabId = tab.id;
 	});
-}
+};
+
+var bindOnChange = function() {
+	$(document).on('change', '#options select, #options input', function() {
+		var $this = $(this);
+		var id = $this.attr('id');
+		saveOption(id, $this.val());
+		updateMenuVisibility();
+		updateClustering();
+	});
+};
 
 var setupTemplate = function() {
 	console.log('Preparing templates...');
 	$.get('/views/table.html').done(function(data) {
 		tableTemplate = _.template(data);
 		updateClustering();
-		$('#options select, #options input').change(function() {
-			// Save option
-			var $this = $(this);
-			var id = $this.attr('id');
-			localStorage[id] = $this.val();
-			console.log('Saved '+id+' = '+$this.val());
-
-			updateMenuVisibility();
-			updateClustering();
-		});
+		bindOnChange();
+		bindClusterButton();
 		console.log('Templates ready.');
 	});
+};
+
+var saveOption = function(id, value) {
+	localStorage[id] = value;
+	console.log('Saved '+id+' = '+value);
 };
 
 var restoreLastOptions = function() {
 	console.log('Restoring last options...');
 	// Set last options
-	var options = ['method', 'keying_function', 'attribute', 'ngram_size'];
+	var options = ['method', 'keying_function', 'attribute', 'ngram_size', 'order_by'];
 	_.forEach(options, function(option) {
 		if (localStorage[option]) {
 			var value = localStorage[option];
