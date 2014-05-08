@@ -69,7 +69,6 @@ var clusters = {};
 var updateClustering = function() {
 	console.log('Updating clustering...');
 	console.time('Clustering');
-	clusters = {};
 	var currentAttribute = $('#attribute').val();
 	var tabsAttribute = {};
 	chrome.windows.getAll({ populate: true }, function(windows) {
@@ -86,6 +85,7 @@ var updateClustering = function() {
 		var keyingFunction = getKeyingFunction();
 		var keyingOptions = getKeyingOptions(keyingFunction);
 		var keyer = currentKeyer(keyingFunction, keyingOptions);
+		clusters = {};
 		// Perform clustering on all tabs
 		_.forEach(tabsAttribute, function(attribute, tabId) {
 			var cluster = keyer.key(attribute, keyerParams);
@@ -97,9 +97,12 @@ var updateClustering = function() {
 
 		// Sort for display
 		var orderBy = $('#order_by').val();
-		clusters = _.pairs(clusters).sort(getSortMethod(orderBy, currentAttribute));
+		var sorted_clusters = _.pairs(clusters).sort(getSortMethod(orderBy, currentAttribute));
 
-		$('#data').html(tableTemplate({currentAttribute: currentAttribute}));
+		$('#data').html(tableTemplate({
+			currentAttribute: currentAttribute,
+			clusters: sorted_clusters,
+		}));
 	});
 	console.timeEnd('Clustering');
 	console.log('Clustering ready.');
