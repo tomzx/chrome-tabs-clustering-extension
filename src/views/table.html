@@ -11,17 +11,25 @@
 	</div>
 
 	<div class="panel-body">
-		<table class="table table-responsive table-stripped table-bordered table-hover">
+		<table class="table table-responsive table-stripped table-hover">
+			<colgroup>
+				<col style="width: 80px;">
+				<col>
+			</colgroup>
 			<thead>
 				<tr>
+					<th class="text-center">Tab ID</th>
 					<th>Title</th>
 				</tr>
 			</thead>
 			<tbody>
 			<% _.forEach(cluster[1], function(tab) { %>
 			<tr>
+				<td class="text-center">
+					<%- tab.id %>
+				</td>
 				<td>
-					<%- tab.title %> (<%- tab.id %>)
+					<%- tab.title %> ()
 				</td>
 			</tr>
 			<% }); %>

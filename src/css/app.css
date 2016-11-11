@@ -1,0 +1,7 @@
+.panel-body {
+	padding: inherit;
+}
+
+.panel-body .table {
+	margin-bottom: inherit;
+}
