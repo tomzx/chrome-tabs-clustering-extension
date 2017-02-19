@@ -108,13 +108,24 @@ var updateClustering = function() {
 	console.log('Clustering ready.');
 };
 
-
 var bindClusterButton = function() {
 	$(document).on('click', '.btn-cluster', function(e) {
 		e.preventDefault();
 
 		var $this = $(this);
 		applyClustering($this.data('id'));
+	});
+};
+
+var bindTabRow = function() {
+	$(document).on('click', '.tab-row', function(e) {
+		e.preventDefault();
+
+		var $this = $(this);
+		var tabId = $this.data('tab-id');
+		var tab = tabs[tabId];
+		chrome.tabs.update(tabId, { active: true });
+		chrome.windows.update(tab.windowId, { focused: true });
 	});
 };
 
@@ -132,7 +143,6 @@ var applyClustering = function(clusterId) {
 		chrome.tabs.move(_.rest(tabsId), { windowId: window.id, index: -1 });
 	});
 };
-
 
 var onUpdatedTabs = function(tabId, changeInfo, tab) {
 	var onlyOnComplete = changeInfo.status === 'complete';
@@ -178,6 +188,7 @@ var setupTemplate = function() {
 		updateClustering();
 		bindOnChange();
 		bindClusterButton();
+		bindTabRow();
 		console.log('Templates ready.');
 	});
 };

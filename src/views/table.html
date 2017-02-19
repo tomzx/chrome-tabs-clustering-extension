@@ -24,12 +24,12 @@
 			</thead>
 			<tbody>
 			<% _.forEach(cluster[1], function(tab) { %>
-			<tr>
+			<tr class="tab-row" data-tab-id="<%- tab.id %>">
 				<td class="text-center">
 					<%- tab.id %>
 				</td>
 				<td>
-					<%- tab.title %> ()
+					<%- tab.title %>
 				</td>
 			</tr>
 			<% }); %>

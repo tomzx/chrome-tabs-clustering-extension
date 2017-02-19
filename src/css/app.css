@@ -5,3 +5,7 @@
 .panel-body .table {
 	margin-bottom: inherit;
 }
+
+.tab-row {
+	cursor: pointer;
+}
